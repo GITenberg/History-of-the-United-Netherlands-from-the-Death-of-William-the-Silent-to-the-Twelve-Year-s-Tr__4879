@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: f7xpdxbMinucNwUKGI7/nPM+03RpVLTDTtH2/MBs582R3RwwvAF23YxuaovMaRlXyhUI/Do9O6eSLXyJApWc3wEc1Zegwodq29w36adbhOpeAFRCYU0BrdeC0rWGw9ZUlyxBPGKXK66XeVkJ8OZTR785ytqueuT9r9TCwfoePSKdDgB9H+edCAlBF/e1v2ESKD9Xe7pF4xmNzaw7h4OWjDdz3OVk3c7jDwo3R1GqBV4aK5O8Yg/E8QgLNg9GGS3ChO39aSwUwuUSJFE8eXphhgu73GDa7f/RzkHx3dq2NNejAhGhmnWXu3JAshAKCRh3zDS9A1GezxvMcLpDyt5vluM+Z9XRPwbMpShQSbHSIzqfrdJBeRHdFDhKmKdXe1oTaE9bNdajgubKDYh2Gk1Bg46XBIeQsawoSlEvKgcoyDYWoWFRJL+z4NcoXtwcl2H+D8L7AvBywaqI4uOW1k1qr5Q7Ws8PSC9qnSmcIrQdddWAq5LWWwCxXQZREgPLYrJHEEO2l1ps8aYuW7ilEUUpdY5/L73ggBxqw3oTJOigMiZOE/ZCjQc+xgISEuioEtZGQHfpYQzsJNjhzIYxjVmLYnlQy0UL8e1cVsvarDOxUJX6FkwwpoG966UICsqZHgGa/bcaNn/vyvziIOKFJujc0tnc6IOtz2FW+VMnEiIw3gU=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/History-of-the-United-Netherlands-from-the-Death-of-William-the-Silent-to-the-Twelve-Year-s-Tr__4879
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
